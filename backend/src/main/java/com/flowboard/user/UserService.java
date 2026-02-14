@@ -11,20 +11,47 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User registerUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+    public UserResponse registerUser(UserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalStateException("Email already registered");
         }
 
-        return userRepository.save(user);
+        User user = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .build();
+
+        User savedUser = userRepository.save(user);
+        return UserResponse.builder()
+                .id(savedUser.getId())
+                .name(savedUser.getName())
+                .email(savedUser.getEmail())
+                .createdAt(savedUser.getCreatedAt())
+                .build();
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
+    public UserResponse getUserById(Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(user -> UserResponse.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .createdAt(user.getCreatedAt())
+                        .build())
+                .toList();
     }
 }
