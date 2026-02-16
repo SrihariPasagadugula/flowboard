@@ -3,6 +3,7 @@ package com.flowboard.user;
 import com.flowboard.exception.DuplicateResourceException;
 import com.flowboard.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponse registerUser(UserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -21,7 +23,7 @@ public class UserService {
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
         User savedUser = userRepository.save(user);
