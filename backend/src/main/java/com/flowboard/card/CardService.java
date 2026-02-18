@@ -7,12 +7,15 @@ import com.flowboard.exception.AccessDeniedException;
 import com.flowboard.exception.ResourceNotFoundException;
 import com.flowboard.user.User;
 import com.flowboard.user.UserRepository;
+import com.flowboard.websocket.BoardEvent;
+import com.flowboard.websocket.BoardEventPublisher;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class CardService {
     private final CardRepository cardRepository;
     private final BoardListRepository boardListRepository;
     private final UserRepository userRepository;
+    private final BoardEventPublisher eventPublisher;
 
     public CardResponse createCard(Long listId, CardRequest request) {
         User currentUser = getCurrentUser();
@@ -98,36 +102,47 @@ public class CardService {
             }
 
             cardRepository.saveAll(cards);
-            return;
+        } else {
+            // DIFFERENT LIST MOVE
+            List<Card> sourceCards = cardRepository
+                    .findByBoardListIdOrderByPositionAsc(sourceList.getId());
+
+            sourceCards.removeIf(c -> c.getId().equals(cardId));
+
+            for (int i = 0; i < sourceCards.size(); i++) {
+                sourceCards.get(i).setPosition(i);
+            }
+
+            cardRepository.saveAll(sourceCards);
+
+            List<Card> destinationCards = cardRepository
+                    .findByBoardListIdOrderByPositionAsc(destinationList.getId());
+
+            int newPosition = request.getNewPosition();
+            if (newPosition < 0) newPosition = 0;
+            if (newPosition > destinationCards.size()) newPosition = destinationCards.size();
+
+            card.setBoardList(destinationList);
+            destinationCards.add(newPosition, card);
+
+            for (int i = 0; i < destinationCards.size(); i++) {
+                destinationCards.get(i).setPosition(i);
+            }
+
+            cardRepository.saveAll(destinationCards);
         }
 
-        // DIFFERENT LIST MOVE
-        List<Card> sourceCards = cardRepository
-                .findByBoardListIdOrderByPositionAsc(sourceList.getId());
-
-        sourceCards.removeIf(c -> c.getId().equals(cardId));
-
-        for (int i = 0; i < sourceCards.size(); i++) {
-            sourceCards.get(i).setPosition(i);
-        }
-
-        cardRepository.saveAll(sourceCards);
-
-        List<Card> destinationCards = cardRepository
-                .findByBoardListIdOrderByPositionAsc(destinationList.getId());
-
-        int newPosition = request.getNewPosition();
-        if (newPosition < 0) newPosition = 0;
-        if (newPosition > destinationCards.size()) newPosition = destinationCards.size();
-
-        card.setBoardList(destinationList);
-        destinationCards.add(newPosition, card);
-
-        for (int i = 0; i < destinationCards.size(); i++) {
-            destinationCards.get(i).setPosition(i);
-        }
-
-        cardRepository.saveAll(destinationCards);
+        BoardEvent event = BoardEvent.builder()
+                .type("CARD_MOVED")
+                .boardId(destinationList.getBoard().getId())
+                .data(Map.of(
+                        "cardId", card.getId(),
+                        "sourceListId", request.getSourceListId(),
+                        "destinationListId", request.getDestinationListId(),
+                        "newPosition", request.getNewPosition()
+                ))
+                .build();
+        eventPublisher.publish(destinationList.getBoard().getId(), event);
     }
 
     private void validateOwnership(BoardList list, User user) {
