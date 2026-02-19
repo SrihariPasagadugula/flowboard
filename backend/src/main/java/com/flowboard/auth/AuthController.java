@@ -29,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -39,6 +39,6 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(user.getEmail());
-        return new AuthResponse(token);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }
