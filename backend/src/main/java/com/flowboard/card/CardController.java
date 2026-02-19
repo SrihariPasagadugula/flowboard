@@ -9,24 +9,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/lists/{listId}/cards")
 @RequiredArgsConstructor
 public class CardController {
 
     private final CardService cardService;
 
-    @PostMapping
+    @PostMapping("/api/lists/{listId}/cards")
     public ResponseEntity<CardResponse> createCard(@PathVariable Long listId, @Valid @RequestBody CardRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cardService.createCard(listId, request));
     }
 
-    @GetMapping
+    @GetMapping("/api/lists/{listId}/cards")
     public ResponseEntity<List<CardResponse>> getCards(@PathVariable Long listId) {
         return ResponseEntity.ok(cardService.getCardsByList(listId));
     }
 
-    @PutMapping("/{cardId}/move")
-    public ResponseEntity<Void> moveCard(@PathVariable Long listId, @PathVariable Long cardId, @Valid @RequestBody MoveCardRequest request) {
+    @PutMapping("/api/cards/{cardId}/move")
+    public ResponseEntity<Void> moveCard(@PathVariable Long cardId, @Valid @RequestBody MoveCardRequest request) {
         cardService.moveCard(cardId, request);
         return ResponseEntity.noContent().build();
     }
