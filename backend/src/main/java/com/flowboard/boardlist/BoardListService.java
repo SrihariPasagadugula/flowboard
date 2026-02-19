@@ -4,10 +4,9 @@ import com.flowboard.board.Board;
 import com.flowboard.board.BoardRepository;
 import com.flowboard.exception.AccessDeniedException;
 import com.flowboard.exception.ResourceNotFoundException;
+import com.flowboard.security.CurrentUserService;
 import com.flowboard.user.User;
-import com.flowboard.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +17,10 @@ public class BoardListService {
 
     private final BoardListRepository boardListRepository;
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     public BoardListResponse createList(Long boardId, BoardListRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
@@ -44,7 +43,7 @@ public class BoardListService {
     }
 
     public List<BoardListResponse> getListsByBoard(Long boardId) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
@@ -57,12 +56,6 @@ public class BoardListService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
-    }
-
-    private User getCurrentUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private BoardListResponse mapToResponse(BoardList list) {

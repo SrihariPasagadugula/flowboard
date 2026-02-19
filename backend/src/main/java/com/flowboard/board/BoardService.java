@@ -2,10 +2,9 @@ package com.flowboard.board;
 
 import com.flowboard.exception.AccessDeniedException;
 import com.flowboard.exception.ResourceNotFoundException;
+import com.flowboard.security.CurrentUserService;
 import com.flowboard.user.User;
-import com.flowboard.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,10 +14,10 @@ import java.util.List;
 public class BoardService {
 
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     public BoardResponse createBoard(BoardRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         Board board = Board.builder()
                 .title(request.getTitle())
@@ -32,7 +31,7 @@ public class BoardService {
     }
 
     public List<BoardResponse> getMyBoards() {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         return boardRepository.findByOwnerId(currentUser.getId())
                 .stream()
@@ -41,7 +40,7 @@ public class BoardService {
     }
 
     public BoardResponse getBoardById(Long boardId) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
@@ -54,7 +53,7 @@ public class BoardService {
     }
 
     public BoardResponse updateBoard(Long boardId, BoardRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
@@ -72,7 +71,7 @@ public class BoardService {
     }
 
     public void deleteBoard(Long boardId) {
-        User currentUser = getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Board not found"));
@@ -82,11 +81,6 @@ public class BoardService {
         }
 
         boardRepository.delete(board);
-    }
-
-    private User getCurrentUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private BoardResponse mapToResponse(Board board) {
