@@ -28,13 +28,27 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            String email = jwtUtil.extractEmail(token);
 
-            User user = userRepository.findByEmail(email).orElse(null);
+            try {
+                String email = jwtUtil.extractEmail(token);
 
-            if (user != null) {
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user.getEmail(), null, List.of());
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                User user = userRepository.findByEmail(email).orElse(null);
+
+                if (user != null) {
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user.getEmail(), null, List.of());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+            } catch (Exception ex) {
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("""
+                        {
+                            "error": "UNAUTHORIZED",
+                            "message": "Invalid or expired token"
+                        }
+                        """);
+                return;
             }
         }
 
