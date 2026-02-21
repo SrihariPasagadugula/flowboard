@@ -1,5 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import { AppLayout } from "./layout/AppLayout";
+import { LoginPage } from "../features/auth/LoginPage";
+import { RegisterPage } from "../features/auth/RegisterPage";
+import { ProtectedRoute } from "../shared/components/ProtectedRoute";
+import { PublicOnlyRoute } from "../shared/components/PublicOnlyRoute";
 
 export const router = createBrowserRouter([
   {
@@ -8,14 +12,25 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: (
-          <div className="bg-white rounded-xl shadow-sm border border-border p-8">
-            <h2 className="text-2xl font-bold mb-4">
-              Welcome to FlowBoard
-            </h2>
-            <p className="text-gray-600">
-              Your full-stack Kanban productivity system.
-            </p>
-          </div>
+          <ProtectedRoute>
+            <div>Home</div>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/login",
+        element: (
+          <PublicOnlyRoute>
+            <LoginPage />
+          </PublicOnlyRoute>
+        ),
+      },
+      {
+        path: "/register",
+        element: (
+          <PublicOnlyRoute>
+            <RegisterPage />
+          </PublicOnlyRoute>
         ),
       },
     ],
