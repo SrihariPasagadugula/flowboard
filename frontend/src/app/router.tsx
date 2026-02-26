@@ -4,6 +4,7 @@ import { LoginPage } from "../features/auth/LoginPage";
 import { RegisterPage } from "../features/auth/RegisterPage";
 import { ProtectedRoute } from "../shared/components/ProtectedRoute";
 import { PublicOnlyRoute } from "../shared/components/PublicOnlyRoute";
+import DashboardPage from "../features/dashboard/pages/DashboardPage";
 
 export const router = createBrowserRouter([
   {
@@ -13,7 +14,7 @@ export const router = createBrowserRouter([
         path: "/",
         element: (
           <ProtectedRoute>
-            <div>Home</div>
+            <DashboardPage />
           </ProtectedRoute>
         ),
       },
