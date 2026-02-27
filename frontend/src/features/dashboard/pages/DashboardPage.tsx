@@ -1,4 +1,9 @@
+import { useState } from "react";
+import CreateBoardModal from "../../boards/components/CreateBoardModal";
+
 const DashboardPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-10">
       <div className="max-w-7xl mx-auto">
@@ -11,7 +16,10 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          <button className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition">
+          <button
+            className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition"
+            onClick={() => setIsModalOpen(true)}
+          >
             + Create Board
           </button>
         </div>
@@ -40,11 +48,18 @@ const DashboardPage = () => {
           <p className="text-sm text-gray-500 mt-2">
             Create your first board to start organizing your workflow.
           </p>
-          <button className="mt-6 px-6 py-2.5 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition">
+          <button
+            className="mt-6 px-6 py-2.5 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition"
+            onClick={() => setIsModalOpen(true)}
+          >
             Create First Board
           </button>
         </div>
       </div>
+      <CreateBoardModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { Board } from "../types/board.types";
+import type { Board, CreateBoardRequest } from "../types/board.types";
 import * as boardsApi from "../api/boardsApi";
 import type { AxiosError } from "axios";
 import type { ApiErrorResponse } from "../../../shared/types/api";
@@ -31,6 +31,21 @@ export const fetchBoards = createAsyncThunk<
   }
 });
 
+export const createBoardThunk = createAsyncThunk<
+  Board,
+  CreateBoardRequest,
+  { rejectValue: string }
+>("boards/createBoard", async (payload, { rejectWithValue }) => {
+  try {
+    return await boardsApi.createBoard(payload);
+  } catch (err) {
+    const error = err as AxiosError<ApiErrorResponse>;
+    return rejectWithValue(
+      error.response?.data.message || "Failed to create board",
+    );
+  }
+});
+
 const boardsSlice = createSlice({
   name: "boards",
   initialState,
@@ -48,6 +63,9 @@ const boardsSlice = createSlice({
       .addCase(fetchBoards.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Something went wrong";
+      })
+      .addCase(createBoardThunk.fulfilled, (state, action) => {
+        state.boards.push(action.payload);
       });
   },
 });
