@@ -5,6 +5,7 @@ import { RegisterPage } from "../features/auth/RegisterPage";
 import { ProtectedRoute } from "../shared/components/ProtectedRoute";
 import { PublicOnlyRoute } from "../shared/components/PublicOnlyRoute";
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
+import BoardsPage from "../features/boards/pages/BoardsPage";
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +33,14 @@ export const router = createBrowserRouter([
           <PublicOnlyRoute>
             <RegisterPage />
           </PublicOnlyRoute>
+        ),
+      },
+      {
+        path: "/boards",
+        element: (
+          <ProtectedRoute>
+            <BoardsPage />
+          </ProtectedRoute>
         ),
       },
     ],
