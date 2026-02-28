@@ -6,12 +6,14 @@ import type { ApiErrorResponse } from "../../../shared/types/api";
 
 interface BoardsState {
   boards: Board[];
+  selectedBoard: Board | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: BoardsState = {
   boards: [],
+  selectedBoard: null,
   loading: false,
   error: null,
 };
@@ -46,6 +48,21 @@ export const createBoardThunk = createAsyncThunk<
   }
 });
 
+export const fetchBoardById = createAsyncThunk<
+  Board,
+  number,
+  { rejectValue: string }
+>("boards/fetchBoardById", async (id, { rejectWithValue }) => {
+  try {
+    return await boardsApi.getBoardById(id);
+  } catch (err) {
+    const error = err as AxiosError<ApiErrorResponse>;
+    return rejectWithValue(
+      error.response?.data.message || "Failed to fetch board",
+    );
+  }
+});
+
 const boardsSlice = createSlice({
   name: "boards",
   initialState,
@@ -66,6 +83,18 @@ const boardsSlice = createSlice({
       })
       .addCase(createBoardThunk.fulfilled, (state, action) => {
         state.boards.push(action.payload);
+      })
+      .addCase(fetchBoardById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBoardById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedBoard = action.payload;
+      })
+      .addCase(fetchBoardById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Something went wrong";
       });
   },
 });

@@ -6,6 +6,7 @@ import { ProtectedRoute } from "../shared/components/ProtectedRoute";
 import { PublicOnlyRoute } from "../shared/components/PublicOnlyRoute";
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import BoardsPage from "../features/boards/pages/BoardsPage";
+import BoardDetailPage from "../features/boards/pages/BoardDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +41,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <BoardsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/boards/:boardId",
+        element: (
+          <ProtectedRoute>
+            <BoardDetailPage />
           </ProtectedRoute>
         ),
       },
