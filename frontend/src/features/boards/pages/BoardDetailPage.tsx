@@ -3,6 +3,8 @@ import { useAppDispatch } from "../../../shared/hooks/useAppDispatch";
 import { useAppSelector } from "../../../shared/hooks/useAppSelector";
 import { fetchBoardById } from "../store/boardsSlice";
 import { useEffect } from "react";
+import { clearLists, fetchLists } from "../../lists/store/listsSlice";
+import ListColumn from "../../lists/components/ListColumn";
 
 const BoardDetailPage = () => {
   const { boardId } = useParams();
@@ -10,11 +12,18 @@ const BoardDetailPage = () => {
   const { selectedBoard, loading, error } = useAppSelector(
     (state) => state.boards,
   );
+  const { lists } = useAppSelector((state) => state.lists);
 
   useEffect(() => {
     if (boardId) {
-      dispatch(fetchBoardById(Number(boardId)));
+      const id = Number(boardId);
+      dispatch(fetchBoardById(id));
+      dispatch(fetchLists(id));
     }
+
+    return () => {
+      dispatch(clearLists());
+    };
   }, [dispatch, boardId]);
 
   if (loading) return <p>Loading board...</p>;
@@ -32,8 +41,19 @@ const BoardDetailPage = () => {
           <p className="text-gray-500 mt-2">{selectedBoard.description}</p>
         )}
 
-        <div className="mt-10">
-          <p className="text-gray-500">Lists will appear here.</p>
+        <div className="mt-10 overflow-x-auto">
+          <div className="flex gap-6 min-w-max">
+            {lists.map((list) => (
+              <ListColumn key={list.id} list={list} />
+            ))}
+
+            {/* Add List Placeholder */}
+            <div className="w-72 flex-shrink-0">
+              <button className="w-full h-12 bg-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-300 transition">
+                + Add List
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
