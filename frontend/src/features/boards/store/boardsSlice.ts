@@ -66,7 +66,11 @@ export const fetchBoardById = createAsyncThunk<
 const boardsSlice = createSlice({
   name: "boards",
   initialState,
-  reducers: {},
+  reducers: {
+    clearSelectedBoard: (state) => {
+      state.selectedBoard = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchBoards.pending, (state) => {
@@ -99,4 +103,5 @@ const boardsSlice = createSlice({
   },
 });
 
+export const { clearSelectedBoard } = boardsSlice.actions;
 export default boardsSlice.reducer;

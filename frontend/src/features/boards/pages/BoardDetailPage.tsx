@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../../../shared/hooks/useAppDispatch";
 import { useAppSelector } from "../../../shared/hooks/useAppSelector";
-import { fetchBoardById } from "../store/boardsSlice";
+import { clearSelectedBoard, fetchBoardById } from "../store/boardsSlice";
 import { useEffect, useState } from "react";
 import {
   clearLists,
@@ -30,6 +30,7 @@ const BoardDetailPage = () => {
 
     return () => {
       dispatch(clearLists());
+      dispatch(clearSelectedBoard());
     };
   }, [dispatch, boardId]);
 
