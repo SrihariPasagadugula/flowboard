@@ -82,6 +82,9 @@ public class CardService {
             throw new AccessDeniedException("Card does not belong to source list");
         }
 
+        int newPosition = request.getNewPosition();
+        if (newPosition < 0) newPosition = 0;
+
         // SAME LIST MOVE
         if (sourceList.getId().equals(destinationList.getId())) {
 
@@ -90,8 +93,6 @@ public class CardService {
 
             cards.removeIf(c -> c.getId().equals(cardId));
 
-            int newPosition = request.getNewPosition();
-            if (newPosition < 0) newPosition = 0;
             if (newPosition > cards.size()) newPosition = cards.size();
 
             cards.add(newPosition, card);
@@ -117,8 +118,6 @@ public class CardService {
             List<Card> destinationCards = cardRepository
                     .findByBoardListIdOrderByPositionAsc(destinationList.getId());
 
-            int newPosition = request.getNewPosition();
-            if (newPosition < 0) newPosition = 0;
             if (newPosition > destinationCards.size()) newPosition = destinationCards.size();
 
             card.setBoardList(destinationList);
@@ -138,7 +137,7 @@ public class CardService {
                         "cardId", card.getId(),
                         "sourceListId", request.getSourceListId(),
                         "destinationListId", request.getDestinationListId(),
-                        "newPosition", request.getNewPosition()
+                        "newPosition", newPosition
                 ))
                 .build();
         eventPublisher.publish(destinationList.getBoard().getId(), event);

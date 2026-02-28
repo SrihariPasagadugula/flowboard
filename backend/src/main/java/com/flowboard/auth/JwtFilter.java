@@ -1,5 +1,7 @@
 package com.flowboard.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flowboard.exception.ErrorResponse;
 import com.flowboard.user.User;
 import com.flowboard.user.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -40,14 +42,17 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             } catch (Exception ex) {
                 SecurityContextHolder.clearContext();
+
+                ErrorResponse error = new ErrorResponse(
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "UNAUTHORIZED",
+                        "Invalid or expired token",
+                        request.getRequestURI()
+                );
+
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
-                response.getWriter().write("""
-                        {
-                            "error": "UNAUTHORIZED",
-                            "message": "Invalid or expired token"
-                        }
-                        """);
+                response.getWriter().write(new ObjectMapper().writeValueAsString(error));
                 return;
             }
         }
