@@ -2,8 +2,12 @@ import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../../../shared/hooks/useAppDispatch";
 import { useAppSelector } from "../../../shared/hooks/useAppSelector";
 import { fetchBoardById } from "../store/boardsSlice";
-import { useEffect } from "react";
-import { clearLists, fetchLists } from "../../lists/store/listsSlice";
+import { useEffect, useState } from "react";
+import {
+  clearLists,
+  createListThunk,
+  fetchLists,
+} from "../../lists/store/listsSlice";
 import ListColumn from "../../lists/components/ListColumn";
 
 const BoardDetailPage = () => {
@@ -13,6 +17,9 @@ const BoardDetailPage = () => {
     (state) => state.boards,
   );
   const { lists } = useAppSelector((state) => state.lists);
+
+  const [isAddingList, setIsAddingList] = useState(false);
+  const [listTitle, setListTitle] = useState("");
 
   useEffect(() => {
     if (boardId) {
@@ -47,11 +54,57 @@ const BoardDetailPage = () => {
               <ListColumn key={list.id} list={list} />
             ))}
 
-            {/* Add List Placeholder */}
             <div className="w-72 flex-shrink-0">
-              <button className="w-full h-12 bg-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-300 transition">
-                + Add List
-              </button>
+              {!isAddingList ? (
+                <button
+                  onClick={() => setIsAddingList(true)}
+                  className="w-full h-12 bg-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-300 transition"
+                >
+                  + Add List
+                </button>
+              ) : (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                  <input
+                    type="text"
+                    placeholder="Enter list title..."
+                    value={listTitle}
+                    onChange={(e) => setListTitle(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                    autoFocus
+                  />
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (!listTitle.trim() || !boardId) return;
+
+                        dispatch(
+                          createListThunk({
+                            boardId: Number(boardId),
+                            title: listTitle.trim(),
+                          }),
+                        );
+
+                        setListTitle("");
+                        setIsAddingList(false);
+                      }}
+                      className="px-3 py-1.5 bg-gray-900 text-white text-sm rounded-lg"
+                    >
+                      Add
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsAddingList(false);
+                        setListTitle("");
+                      }}
+                      className="px-3 py-1.5 text-sm text-gray-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
