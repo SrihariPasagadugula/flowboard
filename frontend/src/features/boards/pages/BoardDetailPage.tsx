@@ -9,6 +9,7 @@ import {
   fetchLists,
 } from "../../lists/store/listsSlice";
 import ListColumn from "../../lists/components/ListColumn";
+import { clearCards } from "../../cards/store/cardsSlice";
 
 const BoardDetailPage = () => {
   const { boardId } = useParams();
@@ -30,6 +31,7 @@ const BoardDetailPage = () => {
 
     return () => {
       dispatch(clearLists());
+      dispatch(clearCards());
       dispatch(clearSelectedBoard());
     };
   }, [dispatch, boardId]);
