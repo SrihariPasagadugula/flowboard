@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../../shared/hooks/useAppDispatch";
 import { useAppSelector } from "../../../shared/hooks/useAppSelector";
 import { fetchCards, createCardThunk } from "../../cards/store/cardsSlice";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import CardItem from "../../cards/components/CardItem";
+import { useDroppable } from "@dnd-kit/core";
 
 interface Props {
   list: List;
@@ -16,27 +22,35 @@ const ListColumn = ({ list }: Props) => {
   const [cardTitle, setCardTitle] = useState("");
   const [cardDescription, setCardDescription] = useState("");
 
+  const { setNodeRef } = useDroppable({
+    id: `list-${list.id}`,
+    data: {
+      type: "list",
+      listId: list.id,
+    },
+  });
+
   useEffect(() => {
     dispatch(fetchCards(list.id));
   }, [dispatch, list.id]);
 
   return (
-    <div className="bg-white w-72 rounded-xl shadow-sm border border-gray-200 p-4 flex-shrink-0">
+    <div
+      ref={setNodeRef}
+      className="bg-white w-72 rounded-xl shadow-sm border border-gray-200 p-4 flex-shrink-0"
+    >
       <h3 className="text-sm font-semibold text-gray-700 mb-4">{list.title}</h3>
 
-      <div className="space-y-2">
-        {cards.map((card) => (
-          <div
-            key={card.id}
-            className="bg-gray-100 rounded-lg p-3 text-sm text-gray-800"
-          >
-            <p className="font-medium">{card.title}</p>
-            {card.description && (
-              <p className="text-xs text-gray-500 mt-1">{card.description}</p>
-            )}
-          </div>
-        ))}
-      </div>
+      <SortableContext
+        items={cards.map((card) => `card-${card.id}`)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="space-y-2">
+          {cards.map((card) => (
+            <CardItem key={card.id} card={card} cardListId={list.id} />
+          ))}
+        </div>
+      </SortableContext>
 
       {!isAdding ? (
         <button

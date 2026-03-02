@@ -62,6 +62,47 @@ const cardsSlice = createSlice({
     clearCards: (state) => {
       state.cards = {};
     },
+    reorderCardsInList: (
+      state,
+      action: {
+        payload: {
+          listId: number;
+          fromIndex: number;
+          toIndex: number;
+        };
+      },
+    ) => {
+      const { listId, fromIndex, toIndex } = action.payload;
+
+      const listCards = state.cards[listId];
+      if (!listCards) return;
+
+      const [moved] = listCards.splice(fromIndex, 1);
+      listCards.splice(toIndex, 0, moved);
+    },
+    moveCardBetweenLists: (
+      state,
+      action: {
+        payload: {
+          sourceListId: number;
+          destinationListId: number;
+          fromIndex: number;
+          toIndex: number;
+        };
+      },
+    ) => {
+      const { sourceListId, destinationListId, fromIndex, toIndex } =
+        action.payload;
+
+      const sourceCards = state.cards[sourceListId];
+      const destinationCards = state.cards[destinationListId];
+
+      if (!sourceCards || !destinationCards) return;
+
+      const [moved] = sourceCards.splice(fromIndex, 1);
+
+      destinationCards.splice(toIndex, 0, moved);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -80,5 +121,6 @@ const cardsSlice = createSlice({
   },
 });
 
-export const { clearCards } = cardsSlice.actions;
+export const { clearCards, reorderCardsInList, moveCardBetweenLists } =
+  cardsSlice.actions;
 export default cardsSlice.reducer;
