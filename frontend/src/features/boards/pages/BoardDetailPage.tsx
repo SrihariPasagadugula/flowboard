@@ -13,6 +13,7 @@ import {
   clearCards,
   reorderCardsInList,
   moveCardBetweenLists,
+  moveCardThunk,
 } from "../../cards/store/cardsSlice";
 import {
   DndContext,
@@ -106,6 +107,15 @@ const BoardDetailPage = () => {
             toIndex,
           }),
         );
+
+        dispatch(
+          moveCardThunk({
+            cardId: draggedCardId,
+            sourceListId,
+            destinationListId: sourceListId,
+            newPosition: toIndex,
+          }),
+        );
       } else {
         dispatch(
           moveCardBetweenLists({
@@ -113,6 +123,15 @@ const BoardDetailPage = () => {
             destinationListId,
             fromIndex,
             toIndex,
+          }),
+        );
+
+        dispatch(
+          moveCardThunk({
+            cardId: draggedCardId,
+            sourceListId,
+            destinationListId,
+            newPosition: toIndex,
           }),
         );
       }
@@ -132,6 +151,15 @@ const BoardDetailPage = () => {
           destinationListId,
           fromIndex,
           toIndex,
+        }),
+      );
+
+      dispatch(
+        moveCardThunk({
+          cardId: draggedCardId,
+          sourceListId,
+          destinationListId,
+          newPosition: toIndex,
         }),
       );
     }

@@ -55,6 +55,30 @@ export const createCardThunk = createAsyncThunk<
   },
 );
 
+export const moveCardThunk = createAsyncThunk<
+  void,
+  {
+    cardId: number;
+    sourceListId: number;
+    destinationListId: number;
+    newPosition: number;
+  },
+  { rejectValue: string }
+>("cards/moveCard", async (payload, { rejectWithValue }) => {
+  try {
+    await cardsApi.moveCard(payload.cardId, {
+      sourceListId: payload.sourceListId,
+      destinationListId: payload.destinationListId,
+      newPosition: payload.newPosition,
+    });
+  } catch (err) {
+    const error = err as AxiosError<ApiErrorResponse>;
+    return rejectWithValue(
+      error.response?.data.message || "Failed to move card",
+    );
+  }
+});
+
 const cardsSlice = createSlice({
   name: "cards",
   initialState,
