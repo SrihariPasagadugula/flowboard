@@ -1,8 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateBoardModal from "../../boards/components/CreateBoardModal";
+import { useAppSelector } from "../../../shared/hooks/useAppSelector";
+import { useAppDispatch } from "../../../shared/hooks/useAppDispatch";
+import { loadDashboardMetrics } from "../store/dashboardSlice";
 
 const DashboardPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  const { metrics } = useAppSelector((state) => state.dashboard);
+
+  useEffect(() => {
+    dispatch(loadDashboardMetrics());
+  }, [dispatch]);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-10">
@@ -28,17 +39,23 @@ const DashboardPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <p className="text-sm text-gray-500">Total Boards</p>
-            <h2 className="text-2xl font-semibold mt-2 text-gray-800">0</h2>
+            <h2 className="text-2xl font-semibold mt-2 text-gray-800">
+              {metrics?.totalBoards ?? 0}
+            </h2>
+          </div>
+
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <p className="text-sm text-gray-500">Total Lists</p>
+            <h2 className="text-2xl font-semibold mt-2 text-gray-800">
+              {metrics?.totalLists ?? 0}
+            </h2>
           </div>
 
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <p className="text-sm text-gray-500">Total Cards</p>
-            <h2 className="text-2xl font-semibold mt-2 text-gray-800">0</h2>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <p className="text-sm text-gray-500">Completed Tasks</p>
-            <h2 className="text-2xl font-semibold mt-2 text-gray-800">0</h2>
+            <h2 className="text-2xl font-semibold mt-2 text-gray-800">
+              {metrics?.totalCards ?? 0}
+            </h2>
           </div>
         </div>
 
