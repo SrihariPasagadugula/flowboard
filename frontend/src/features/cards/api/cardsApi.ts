@@ -6,7 +6,7 @@ import type {
 } from "../types/card.types";
 
 export const getCardsByList = async (listId: number): Promise<Card[]> => {
-  const response = await api.get(`/lists/${listId}/cards`);
+  const response = await api.get<Card[]>(`/lists/${listId}/cards`);
   return response.data;
 };
 

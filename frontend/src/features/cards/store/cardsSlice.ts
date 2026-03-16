@@ -127,6 +127,32 @@ const cardsSlice = createSlice({
 
       destinationCards.splice(toIndex, 0, moved);
     },
+    applyCardMovedFromSocket: (
+      state,
+      action: {
+        payload: {
+          cardId: number;
+          sourceListId: number;
+          destinationListId: number;
+          newPosition: number;
+        };
+      },
+    ) => {
+      const { cardId, sourceListId, destinationListId, newPosition } =
+        action.payload;
+
+      const sourceCards = state.cards[sourceListId];
+      const destinationCards = state.cards[destinationListId];
+
+      if (!sourceCards || !destinationCards) return;
+
+      const cardIndex = sourceCards.findIndex((c) => c.id === cardId);
+      if (cardIndex === -1) return;
+
+      const [card] = sourceCards.splice(cardIndex, 1);
+
+      destinationCards.splice(newPosition, 0, card);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -145,6 +171,10 @@ const cardsSlice = createSlice({
   },
 });
 
-export const { clearCards, reorderCardsInList, moveCardBetweenLists } =
-  cardsSlice.actions;
+export const {
+  clearCards,
+  reorderCardsInList,
+  moveCardBetweenLists,
+  applyCardMovedFromSocket,
+} = cardsSlice.actions;
 export default cardsSlice.reducer;

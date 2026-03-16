@@ -21,6 +21,7 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
+import { connectWebSocket, disconnectWebSocket } from "../../../lib/websocket";
 
 const BoardDetailPage = () => {
   const { boardId } = useParams();
@@ -42,11 +43,15 @@ const BoardDetailPage = () => {
   useEffect(() => {
     if (boardId) {
       const id = Number(boardId);
+
       dispatch(fetchBoardById(id));
       dispatch(fetchLists(id));
+
+      connectWebSocket(id);
     }
 
     return () => {
+      disconnectWebSocket();
       dispatch(clearLists());
       dispatch(clearCards());
       dispatch(clearSelectedBoard());
@@ -88,6 +93,8 @@ const BoardDetailPage = () => {
     const fromIndex = sourceCards.findIndex(
       (card) => card.id === draggedCardId,
     );
+
+    if (fromIndex === -1) return;
 
     if (overData?.type === "card") {
       const destinationListId = overData.listId;

@@ -16,7 +16,7 @@ interface Props {
 
 const ListColumn = ({ list }: Props) => {
   const dispatch = useAppDispatch();
-  const cards = useAppSelector((state) => state.cards.cards[list.id] || []);
+  const cards = useAppSelector((state) => state.cards.cards[list.id]) ?? [];
 
   const [isAdding, setIsAdding] = useState(false);
   const [cardTitle, setCardTitle] = useState("");
